@@ -12,7 +12,15 @@ public class GreeterService : Greeter.GreeterBase
     public GreeterService(ILogger<GreeterService> logger, IEnumerable<IOptions<MySettings>> mySettings)
     {
         _logger = logger;
-        _mySettings = mySettings.Single().Value;
+
+        var allSettings = mySettings.ToList();
+
+        if (allSettings.Count() > 1)
+        {
+            _logger.LogError($"Multiple injections detected, count: {allSettings.Count()}");
+        }
+
+        _mySettings = allSettings.Single().Value; //will throw exception, as there are 2 instances of MySettings
     }
 
     public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)

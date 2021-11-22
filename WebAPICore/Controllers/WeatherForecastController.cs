@@ -19,7 +19,15 @@ public class WeatherForecastController : ControllerBase
         IEnumerable<IOptions<MySettings>> mySettings)
     {
         _logger = logger;
-        _mySettings = mySettings.Single().Value;
+
+        var allSettings = mySettings.ToList();
+
+        if (allSettings.Count() > 1)
+        {
+            _logger.LogError($"Multiple injections detected, count: {allSettings.Count()}");
+        }
+
+        _mySettings = allSettings.Single().Value; //will throw exception, as there are 2 instances of MySettings
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
